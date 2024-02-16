@@ -1,0 +1,68 @@
+To create S3 bucket:
+
+resource "aws_s3_bucket" "first_vedro" {
+  bucket = "apahomovs-bucket-one"
+
+  tags = {
+    Name = "firstvedro1"
+  }
+}
+
+To create VPC with cidr block:
+
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+}
+
+To create backend state file to S3 bucket:
+
+terraform {
+  backend "s3" {
+    region = "us-east-1" #where the bucket is
+    bucket = "backendvedro" #bucket name    
+    key = "tf-lesson2-statefile" #how to name state file
+  }
+}
+
+To create locking file DynamoDB:
+
+resource "aws_dynamodb_table" "terraform_locking" {
+  name = "b11-tf-lesson-two"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key = "LockID"
+
+attribute {
+  name = "LockID"
+  type = "S"
+}
+}
+** Add it to the backend file after creation
+
+#build eip for nat
+resource "aws_eip" "nat_eip" {
+  domain   = "vpc"
+  tags = {
+    Name = "eip"
+  }
+}
+
+#create nat-gw
+resource "aws_nat_gateway" "natgw" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.public1a.id
+  depends_on = [aws_internet_gateway.myvpc_igw]
+
+  tags = {
+    Name = "natgw"
+  }
+}
+
+#create igw
+resource "aws_internet_gateway" "myvpc_igw" {
+  vpc_id = aws_vpc.vpc.id
+
+  tags = {
+    Name = "myvpc_igw"
+  }
+}
+
