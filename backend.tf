@@ -8,9 +8,3 @@ terraform {
    #dynamodb_table = "b11-tf-lesson-two"    #name of the table #comment out to not destroy dynamodb
   }
 }
-
-provider "aws" {
-  profile = "default"
-  region = "us-east-1"
-}
-
